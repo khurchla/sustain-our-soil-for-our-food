@@ -11,7 +11,7 @@ The appeal of the interactive visual web tool is to compel consumers to further 
 While debate and analysis continues worldwide about how effective soil carbon is in offsetting greenhouse gas emissions, likelihood grows that U.S. government certified voluntary environmental credit markets will be a reality with the progress of the Growing Climate Solutions Act of 2021. Meeting this bill’s directive will require the alignment of consumers at scale to reduce barriers to entry for food producers in adopting regenerative practices to earn monetary credits. By approaching soil carbon through food, this project adds a more everyday relatable human element in the increasing body of scientific material and visualization growing around soil health and its implications.
 
 ### Comments and Questions
-Please contact Kathryn Hurchla at <a href="mailto:khurchla@mics.edu?cc=kathryn@dadeda.design&subject=Soil">Sustain our Soil for our Food</a>. 
+Please contact Kathryn Hurchla at <a href="mailto:khurchla@mica.edu?cc=kathryn@dadeda.design&subject=Sustain our Soil for our Food">khurchla@mica.edu or kathryn@dadeda.design</a>. 
 
 ### Footnote: Source References
 FAO/IIASA/ISRIC/ISS-CAS/JRC, 2012. Harmonized World Soil Database
