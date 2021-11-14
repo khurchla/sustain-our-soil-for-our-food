@@ -32,4 +32,4 @@ Thank you to my Instructor <a href="https://www.linkedin.com/in/tracy-sanders-04
 This research is completed academically by Kathryn Hurchla and is not a reflection in any way of the source references or their affiliates.
 
 <!-- my custom buy me and a mentee a tea button -->
-<a href="https://www.buymeacoffee.com/earthtokathy"><img src="https://img.buymeacoffee.com/button-api/?text=Fuel mentorship with tea&emoji=🍵&slug=earthtokathy&button_colour=ecd0df&font_colour=062D3F&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00"></a>
+<a href="https://www.buymeacoffee.com/earthtokathy"><img src="https://img.buymeacoffee.com/button-api/?text=Fuel soil dataviz with tea&emoji=🍵&slug=earthtokathy&button_colour=ecd0df&font_colour=062D3F&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00"></a>
