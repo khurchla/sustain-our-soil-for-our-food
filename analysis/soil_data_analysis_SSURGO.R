@@ -67,7 +67,7 @@ SDA_query("SELECT areasymbol, saverest FROM sacatalog WHERE areasymbol != 'US' O
 # When was the most recent updated survey in Vermont, if any exist?
 SDA_query("SELECT areasymbol, saverest FROM sacatalog WHERE areasymbol LIKE 'VT%' ORDER BY saverest DESC")[1, ]
 
-# shall all Vermont
+# show all Vermont
 SDA_query("SELECT areasymbol, saverest FROM sacatalog WHERE areasymbol LIKE 'VT%' ORDER BY areasymbol DESC")
 
 # get a list of map units that contain carbon as a component

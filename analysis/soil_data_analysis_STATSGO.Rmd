@@ -1,5 +1,7 @@
 ---
 title: "Soil Data Analysis USDA NCRS STATSGO2 U.S. National Soil Survey Data"
+author: "Kathryn Hurchla"
+date: "11/8/2021"
 output: html_notebook
 ---
 
@@ -18,7 +20,7 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 
 ## Load the Environment Package Dependencies
 
-```{r}
+```{r,echo=TRUE}
 # modeled after tutorial at http://ncss-tech.github.io/AQP/soilDB/SDA-tutorial.html
 # Soil data presented were derived from the 100+ year efforts of 
 # the National Cooperative Soil Survey, c/o USDA-NRCS
@@ -94,7 +96,4 @@ For more information, see *Discriminating between SSURGO and STATSGO* at https:/
 ```{r}
 # When was the last survey exported to STATSGO? Show most recent at top.
 SDA_query("SELECT areasymbol, saverest FROM sacatalog WHERE areasymbol = 'US' ORDER BY saverest desc")
-```
-```{r}
-SDA_query("SELECT *")
 ```
