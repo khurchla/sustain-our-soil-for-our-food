@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------------------------- 
 # prepare environment (boilerplate)
 # access mapbox token
-token = open(".mapbox_token").read()
+mapbox_access_token = open(".mapbox_token").read()
 
 # import the required packages using their usual aliases
 import dash
@@ -23,6 +23,7 @@ import pandas as pd
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 
 # ----------------------------------------------------------------------------------------
+# -- add the data
 # -- read the food trade matrix data into pandas from CSV file of 2019 export quantities (exported from analysis in Jupyter Notebook)
 # prepared using original dataset FAOSTAT Detailed trade matrix: All Data Normalized from https://fenixservices.fao.org/faostat/static/bulkdownloads/Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip
 # # full dataset
@@ -37,41 +38,6 @@ dffood = pd.read_csv('/Users/kathrynhurchla/Documents/GitHub/sustain-our-soil-fo
 # smaller test dataset
 dfsoil = pd.read_csv('/Users/kathrynhurchla/Documents/GitHub/sustain-our-soil-for-our-food/data/gdf2flatsurface_top_n_rows.csv')
 
-# for a test limit the datapoints to first 50 records
-# dffood = dffood.head(50)
-
-# ----------------------------------------------------------------------------------------
-# create variables for the graph objects
-map_surface = go.Scattermapbox(
-    name = 'SOCD Surface Depth',
-    lon = dfsoil['lon'],
-    lat = dfsoil['lat'],
-    mode = 'markers',
-    marker = go.scattermapbox.Marker(
-        size = dfsoil['SOCD'],
-        color = 'fuchsia', # organic matter hex color #a99e54 was not visible on map terrain of similar color
-        opacity = 0.7
-    )
-)
-
-# add a mapbox image layer below the data
-layout = go.Layout(
-    mapbox_style='white-bg',
-    autosize=True,
-    mapbox_layers=[
-        {
-            'below': 'traces',
-            'sourcetype': 'raster',
-            'source': [
-                "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
-            ]
-        }
-    ]
-)
-
-data = [map_surface]
-fig = go.Figure(data=data, layout=layout) # or any Plotly Express function e.g. px.bar(...)
-
 # ----------------------------------------------------------------------------------------
 # create the app's layout (a list of HTML and/or interactive components)
 app.layout = html.Div(children=[
@@ -80,81 +46,155 @@ app.layout = html.Div(children=[
     html.P('Explore how much of the soil is made up of organic carbon where your favorite foods come from. Measurements are a density of organic carbon as a percentage of what makes up the soil at each location from the ground surface down to 4.5 centimeters deep.', 
     style={'text-align': 'left'}
     ),
+    
+    # add a dropdown for audience member using app to select country where they generally eat
+    # add a brief instructive subheading as a label
     html.Div(children=[
     html.H5('To begin, select a country where you generally eat.'
     ),
+    # give more text tips on how to easily find countries
     html.P('Start typing in the box below to filter countries to choose from in the drop down menu.'
     ),
-    # add a dropdown for audience member using app to select country where they generally eat
-    dcc.Dropdown(id='country_dropdown', 
+    dcc.Dropdown(id='trade_partner_country_dropdown', 
                  options=[{'label': country, 'value': country}
                           # series values needed to be sorted first before taking unique to prevent errors
                           for country in dffood['Partner Countries'].sort_values().unique()
-                          ],
-                 value=None, # None so no selection is defaulted upon each load of the app page
+                 ],
+                #  value='United States', # None so no selection is defaulted upon each load of the app page
                  placeholder='Select Country',
-                 multi=True, # allow multiple Country selections
+                 multi=False, # True to allow multiple Country selections
                  searchable=True, # allows type in search to filter dropdown options that show
                  clearable=True, # shows an 'X' option to clear selection once selection is made
                  persistence=True, # True is required to use a persistence_type
                  persistence_type='session', # remembers dropdown value selection until browser tab is closed (saves after refresh) 
                  style={"width": "50%"}
-                 ),
-    html.Br(),
-    html.Div(id='country_output')
-    ]),
-    html.Div([
-    html.H5('Then, select a food you eat.', style={'text-align': 'left'}
     ),
+    html.Br(),
+    ]),
     # add a dropdown for audience member using app to select a food they frequently eat
+    html.Div([
+    # add a brief instructive subheading as a label
+    html.H5('Then, select a food you enjoy.', style={'text-align': 'left'}
+    ),
     dcc.Dropdown(id='food_dropdown',
-                 options=[{'label': food, 'value': food}
-                          # series values needed to be sorted first before taking unique to prevent errors
-                          for food in dffood['Item'].sort_values().unique()],
+                 options=[], # empty because callbacks are populating this below, based on country selection(s)
+                #  options=[{'label': food, 'value': food}
+                #           # series values needed to be sorted first before taking unique to prevent errors
+                #           for food in dffood['Item'].sort_values().unique()
+                #  ],
                  placeholder='Select Food',
                  searchable=True, 
                  clearable=True, # shows an 'X' option to clear selection once selection is made
                  persistence=True, # True is required to use a persistence_type
                  persistence_type='session', # remembers dropdown value selection until browser tab is closed (saves after refresh) 
                  style={"width": "50%"}
-                 ),
+    ),
     html.Br(),
-    html.Div(id='food_output')
     ]),
 
-    dcc.Graph(
+    html.Div([
+        dcc.Graph(
         id='map-socd',
-        figure=fig
-    )
+        config={'displayModeBar': False, 'scrollZoom': True}
+        )
+    ]),
 ])
 
-# fig.add_trace( ... )
-
-# fig.update_layout(...)
-
-# fig.show()
-
 # ----------------------------------------------------------------------------------------
-# callback functions
+# callback decorators and functions
 # connecting the Dropdown values to the graph
 
-# return the selected country from the dropdown menu
-@app.callback(Output('country_output', 'children'),
-              Input('country_dropdown', 'value'))
-# display to the audience their selection for confirmation
-def display_selected_country(country):
-    if country is None:
-        return '' # color = 'Nothing' if not also using this in other callbacks
-        return 'You selected ' + country
+# populate the options of food dropdown based on countries dropdown
+@app.callback(
+    Output('food_dropdown', 'options'),
+    Input('trade_partner_country_dropdown', 'value')
+)
 
-# return the selected food from the dropdown menu
-@app.callback(Output('food_output', 'children'),
-              Input('food_dropdown', 'value'))
-# display to the audience their selection for confirmation
-def display_selected_food(food):
-    if food is None:
-        return '' # color = 'Nothing' if not also using this in other callbacks
-        return 'You selected ' + food        
+def set_food_options(selected_partner_country):
+    df_sub = dffood[dffood['Partner Countries'].isin(selected_partner_country)]
+    return [{'label': s, 'value': s} for s in sorted(df_sub['Item'].unique())]
+
+# populate initial values of food dropdown
+@app.callback(
+    Output('food_dropdown', 'value'),
+    Input('food_dropdown', 'options')
+)
+
+def set_food_value(available_options):
+    return [x['value'] for x in available_options]
+
+# Output of graph; return the selected options from the dropdown menus and input correlating trade Reporter Country(ies)'s location to the map
+# first try format for testing reference
+# @app.callback(
+#     Output(component_id='map-socd', component_property='figure'),
+#     [Input(component_id='trade_partner_country_dropdown', component_property='value'),
+#      Input(component_id='food_dropdown', component_property='value')]
+# )
+
+# Output of graph; return the selected options from the dropdown menus and input correlating trade Reporter Country(ies)'s location to the map
+@app.callback(
+    Output(component_id='map-socd', component_property='figure'),
+    [Input(component_id='trade_partner_country_dropdown', component_property='value'),
+     Input(component_id='food_dropdown', component_property='value')]
+)
+
+def update_selected_trade_partner(selected_partner_country, selected_food):
+    # always make a copy of any dataframe to use in the function
+    # define the subset of data that matches the selected values from both dropdowns
+    df_sub = dfsoil # full dataframe with geo points
+    if bool(selected_partner_country): # if no country is selected, this is falsy so no filtering
+        if len(selected_food) == 0: # if no food is selected 
+            return dash.no_update # dash.no_update prevents any single output updating    
+    else:
+        dffood_sub = dffood[(dffood['Partner Countries'].isin(selected_partner_country)) &
+                        (dffood['Item'].isin(selected_food))]
+        return [{'label': r, 'value': r} for r in df_sub['country_iso_a3'].isin(dffood_sub['Reporter Country ISO3'])]
+
+    # create figure variables for the graph object
+    locations = [go.Scattermapbox(
+                 name = 'SOCD at Surface Depth to 4.5cm',
+                 lon = df_sub['lon'],
+                 lat = df_sub['lat'],
+                 mode = 'markers',
+                 marker = go.scattermapbox.Marker(
+                     size = df_sub['SOCD'],
+                     color = 'fuchsia', # organic matter hex color #a99e54 was not visible on map terrain of similar color
+                     opacity = 0.7
+                 ),
+                 hoverinfo='text',
+                 hovertext=str(df_sub['SOCD']) + '% Organic Carbon Density'
+    )]
+
+    # add a mapbox image layer below the data
+    layout = go.Layout(
+                uirevision='foo', # preserves state of figure/map after callback activated
+                clickmode='event+select',
+                hovermode='closest',
+                hoverdistance=2,
+                mapbox=dict(
+                    accesstoken=mapbox_access_token,
+                    style='white-bg'
+                ),
+                # mapbox_style='white-bg',
+                autosize=True,
+                mapbox_layers=[
+                    {
+                        'below': 'traces',
+                        'sourcetype': 'raster',
+                        'source': [
+                            "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
+                        ]
+                    }
+                ]
+    )
+
+    # Return figure
+    return {
+        'data': locations,
+        'layout': layout
+    }
+    
+    # fig = go.Figure(data=data, layout=layout) # or any Plotly Express function e.g. px.bar(...)
 
 # ----------------------------------------------------------------------------------------
 # run the app
