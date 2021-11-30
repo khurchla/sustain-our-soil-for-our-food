@@ -87,9 +87,10 @@ dftrade_mx_xq2019ISO3.loc[dftrade_mx_xq2019ISO3['Reporter Country Code'] == 41, 
 # rename appended ISO3 column to clarify that it's for Reporter Country in trade matrix
 dftrade_mx_xq2019ISO3.rename(columns={"ISO3 Code": "Reporter Country ISO3"}, inplace=True)
 
+# commented out because it
+# stopped here with output in Terminal 'zsh: killed     /Users/kathrynhurchla/opt/anaconda3/envs/envsoil/bin/python'
 # using pandas merge function, link the trade matrix and socd dataframes
 # with left data as food trade
-# 'stopped here with output in Terminal 'zsh: killed     /Users/kathrynhurchla/opt/anaconda3/envs/envsoil/bin/python'
 dftrade_mx_xq2019_socdsurface = pd.merge(left=dftrade_mx_xq2019ISO3, right=gdf2flatsurfacecountry,
                                      left_on='Reporter Country ISO3',
                                      right_on='country_iso_a3', 

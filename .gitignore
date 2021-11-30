@@ -1,4 +1,5 @@
 # configuration file containing constants for environment
+.mapbox_token
 config.py
 
 # Byte-compiled / optimized / DLL files
