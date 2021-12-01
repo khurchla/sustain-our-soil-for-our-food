@@ -11,7 +11,6 @@ mapbox_access_token = open(".mapbox_token").read()
 import dash
 from dash import dcc
 from dash import html
-# return when online to uncomment/to run: conda install -n envsoil dash_bootstrap_components 
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input
 import plotly.graph_objects as go # or plotly.express as px
@@ -122,14 +121,6 @@ def set_food_options(selected_partner_country):
 
 def set_food_value(available_options):
     return [x['value'] for x in available_options]
-
-# Output of graph; return the selected options from the dropdown menus and input correlating trade Reporter Country(ies)'s location to the map
-# first try format for testing reference
-# @app.callback(
-#     Output(component_id='map-socd', component_property='figure'),
-#     [Input(component_id='trade_partner_country_dropdown', component_property='value'),
-#      Input(component_id='food_dropdown', component_property='value')]
-# )
 
 # Output of graph; return the selected options from the dropdown menus and input correlating trade Reporter Country(ies)'s location to the map
 @app.callback(
