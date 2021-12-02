@@ -1,9 +1,12 @@
 import dash
 from dash import dcc
 from dash import html
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
 import plotly.graph_objects as go
 import pandas as pd
+
+# access mapbox token
+mapbox_access_token = open(".mapbox_token").read()
 
 # ----------------------------------------------------------------------------------------
 app = dash.Dash(__name__)
@@ -19,7 +22,7 @@ dffood = pd.DataFrame({'Reporter Countries': ['Afghanistan', 'Afghanistan', 'Alb
 # -- make minimal soil dataframe (note the only reason I've kept these separate is that I could not get my full dataframes to merge without crashing)
 # represents soil organic carbon density % (SOCD)
 dfsoil = pd.DataFrame({'country_name': ['Albania', 'Albania', 'Afghanistan', 'Afghanistan', 'Benin', 'Benin'],
-                      'country_iso_a3': ['ALB', 'ALB', 'AFG', 'AFG', 'BEN', 'BEN'],
+                      'Reporter Country ISO3': ['ALB', 'ALB', 'AFG', 'AFG', 'BEN', 'BEN'],
                       'lon': [19.3256549835205, 19.3256549835205, 60.5537147521972, 60.6368370056152, 0.789650380611419, 0.872771501541137],
                       'lat': [42.1891021728515, 42.1063117980957, 32.9997024536132, 33.9103622436523, 10.4815368652343, 10.8126859664917],
                       'SOCD': [8, 21, 3, 2, 6, 6]})
@@ -65,7 +68,7 @@ app.layout = html.Div(children=[
 )
 
 def set_food_options(selected_partner_country):
-    df_sub = dffood[dffood['Partner Countries'].isin(selected_partner_country)]
+    df_sub = dffood[dffood['Partner Countries'] == selected_partner_country]
     return [{'label': s, 'value': s} for s in sorted(df_sub['Item'].unique())]
 
 # populate initial values of food dropdown
@@ -82,7 +85,7 @@ def set_food_value(available_options):
 @app.callback(
     Output('map-socd', 'figure'),
     [Input('trade_partner_country_dropdown', 'value'),
-     Input('food_dropdown', 'value')]
+     State('food_dropdown', 'value')]
 )
 
 # take the subset of data matching the selected values from both dropdowns
@@ -93,11 +96,14 @@ def update_selected_trade_partner(selected_partner_country, selected_food):
             return dash.no_update # dash.no_update prevents any single output updating    
     else:
         # take a subset of food trade data including rows containing Partner Countries matching country dropdown selection, and
-        dffood_sub = dffood[(dffood['Partner Countries'].isin(selected_partner_country)) &
+        dffood_sub = dffood[(dffood['Partner Countries'] == selected_partner_country) |
                         # including rows containing food item traded matching food dropdown selection
-                        (dffood['Item'].isin(selected_food))]
+                        (dffood['Item'] == selected_food)]
         # loop over the soil data and return only rows with soil country matching the food trade subset Reporter Country
-        return [{'label': r, 'value': r} for r in dfsoil_sub['country_iso_a3'].isin(dffood_sub['Reporter Country ISO3'])]
+        # first attempt was: return [{'label': r, 'value': r} for r in dfsoil_sub['country_iso_a3'].isin(dffood_sub['Reporter Country ISO3'])]
+        # next attempt was: return [{'label': r, 'value': r} for r in dfsoil_sub['Reporter Country ISO3'].reset_index(drop=True) == dffood_sub['Reporter Country ISO3'].reset_index(drop=True)]
+        # next attempt was: return [{'label': r, 'value': r} for r in dfsoil_sub['Reporter Country ISO3'].reset_index(drop=True).equals(dffood_sub['Reporter Country ISO3'].reset_index(drop=True))]
+        return [{'label': r, 'value': r} for r in dfsoil_sub.loc[dfsoil_sub['Reporter Country ISO3'].isin(dffood_sub['Reporter Country ISO3'])]]
 
     # make geopoints data for the graph object from the filtered soil data subset
     locations = [go.Scattermapbox(
@@ -110,6 +116,7 @@ def update_selected_trade_partner(selected_partner_country, selected_food):
     layout = go.Layout(
                 uirevision='foo', # preserves state of figure/map after callback activated
                 mapbox=dict(
+                    accesstoken=mapbox_access_token,
                     style='light'
                 ),
     )

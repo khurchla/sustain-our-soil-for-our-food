@@ -12,7 +12,7 @@ import dash
 from dash import dcc
 from dash import html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
 import plotly.graph_objects as go # or plotly.express as px
 import pandas as pd
 
@@ -103,14 +103,15 @@ app.layout = html.Div(children=[
 # callback decorators and functions
 # connecting the Dropdown values to the graph
 
-# populate the options of food dropdown based on countries dropdown
+# populate the options of food dropdown based on countries dropdown selection(s)
 @app.callback(
     Output('food_dropdown', 'options'),
     Input('trade_partner_country_dropdown', 'value')
 )
 
 def set_food_options(selected_partner_country):
-    df_sub = dffood[dffood['Partner Countries'].isin(selected_partner_country)]
+    # using == because selected_partner_country is a string, not a list (with a list use .isin)
+    df_sub = dffood[dffood['Partner Countries'] == selected_partner_country]
     return [{'label': s, 'value': s} for s in sorted(df_sub['Item'].unique())]
 
 # populate initial values of food dropdown
@@ -124,36 +125,44 @@ def set_food_value(available_options):
 
 # Output of graph; return the selected options from the dropdown menus and input correlating trade Reporter Country(ies)'s location to the map
 @app.callback(
-    Output(component_id='map-socd', component_property='figure'),
-    [Input(component_id='trade_partner_country_dropdown', component_property='value'),
-     Input(component_id='food_dropdown', component_property='value')]
+    Output('map-socd', 'figure'),
+    [Input('trade_partner_country_dropdown', 'value'),
+     State('food_dropdown', 'value')]
 )
 
 def update_selected_trade_partner(selected_partner_country, selected_food):
     # always make a copy of any dataframe to use in the function
     # define the subset of data that matches the selected values from both dropdowns
-    df_sub = dfsoil # full dataframe with geo points
+    dfsoil_sub = dfsoil # full dataframe with geo points
     if bool(selected_partner_country): # if no country is selected, this is falsy so no filtering
         if len(selected_food) == 0: # if no food is selected 
             return dash.no_update # dash.no_update prevents any single output updating    
     else:
-        dffood_sub = dffood[(dffood['Partner Countries'].isin(selected_partner_country)) &
-                        (dffood['Item'].isin(selected_food))]
-        return [{'label': r, 'value': r} for r in df_sub['country_iso_a3'].isin(dffood_sub['Reporter Country ISO3'])]
+        # take a subset of food trade data including rows containing Partner Countries matching country dropdown selection, 
+        # using == because selected_partner_country is a string, not a list (with a list use .isin); using binary OR '|' instead of AND '&'
+        dffood_sub = dffood[(dffood['Partner Countries'] == selected_partner_country) |
+                        # including rows with food item traded matching food dropdown selection
+                        # using == because selected_food is a string, not a list (with a list use .isin)
+                        (dffood['Item'] == selected_food)]
+        # loop over the soil data and return only rows with soil country matching the food trade subset Reporter Country
+        # first attempt was: return [{'label': r, 'value': r} for r in dfsoil_sub['country_iso_a3'].isin(dffood_sub['Reporter Country ISO3'])]
+        # next attempt was: return [{'label': r, 'value': r} for r in dfsoil_sub['Reporter Country ISO3'].reset_index(drop=True) == dffood_sub['Reporter Country ISO3'].reset_index(drop=True)]
+        # next attempt was: return [{'label': r, 'value': r} for r in dfsoil_sub['Reporter Country ISO3'].reset_index(drop=True).equals(dffood_sub['Reporter Country ISO3'].reset_index(drop=True))]
+        return [{'label': r, 'value': r} for r in dfsoil_sub.loc[dfsoil_sub['country_iso_a3'].isin(dffood_sub['Reporter Country ISO3'])]]
 
     # create figure variables for the graph object
     locations = [go.Scattermapbox(
                  name = 'SOCD at Surface Depth to 4.5cm',
-                 lon = df_sub['lon'],
-                 lat = df_sub['lat'],
+                 lon = dfsoil_sub['lon'],
+                 lat = dfsoil_sub['lat'],
                  mode = 'markers',
                  marker = go.scattermapbox.Marker(
-                     size = df_sub['SOCD'],
+                     size = dfsoil_sub['SOCD'],
                      color = 'fuchsia', # organic matter hex color #a99e54 was not visible on map terrain of similar color
                      opacity = 0.7
                  ),
                  hoverinfo='text',
-                 hovertext=str(df_sub['SOCD']) + '% Organic Carbon Density'
+                 hovertext=str(dfsoil_sub['SOCD']) + '% Organic Carbon Density'
     )]
 
     # add a mapbox image layer below the data
@@ -166,7 +175,6 @@ def update_selected_trade_partner(selected_partner_country, selected_food):
                     accesstoken=mapbox_access_token,
                     style='white-bg'
                 ),
-                # mapbox_style='white-bg',
                 autosize=True,
                 mapbox_layers=[
                     {
