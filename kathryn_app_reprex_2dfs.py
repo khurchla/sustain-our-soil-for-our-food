@@ -96,7 +96,7 @@ def update_selected_trade_partner(selected_partner_country, selected_food):
             return dash.no_update # dash.no_update prevents any single output updating    
     else:
         # take a subset of food trade data including rows containing Partner Countries matching country dropdown selection, and
-        dffood_sub = dffood[(dffood['Partner Countries'] == selected_partner_country) |
+        dffood_sub = dffood[(dffood['Partner Countries'] == selected_partner_country) &
                         # including rows containing food item traded matching food dropdown selection
                         (dffood['Item'] == selected_food)]
         # loop over the soil data and return only rows with soil country matching the food trade subset Reporter Country
