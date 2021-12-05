@@ -3,6 +3,9 @@ import xarray as xr
 import pandas as pd
 import geopandas as gpd
 
+# raw data file is not saved in repo, and can be downloaded as a zip file from its source:
+# http://globalchange.bnu.edu.cn/research/soilwd.jsp "Soil organic carbon density: SOCD5min.zip"
+
 # read the data file in with xarray and assign it to ds variable
 ds = xr.open_dataset("../data/SOCD5min.nc")
 # transform it to a dataframe assigned to df variable
