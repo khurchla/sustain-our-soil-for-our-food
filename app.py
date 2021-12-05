@@ -33,7 +33,7 @@ dfsoil = pd.read_csv('/Users/kathrynhurchla/Documents/GitHub/sustain-our-soil-fo
 
 # ----------------------------------------------------------------------------------------
 # create (instantiate) the app,
-# using the Bootstrap Flatly (light) theme or Darkly (its dark counterpart) to align with my llc website in development (dadeda.design)
+# using the Bootstrap MORPH theme, or Flatly (light) theme or Darkly (its dark counterpart) to align with my llc website in development with Flatly (dadeda.design)
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH],
                 meta_tags=[{'name': 'viewport',
                             # initial-scale is the initial zoom on each device on load
@@ -44,7 +44,7 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH],
 # named variables for the app's layout
 navbar = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dbc.NavLink("About us", href="#")), #"http://kathrynhurchla.com/", target="_blank"),
+        dbc.NavItem(dbc.NavLink("Contact", href="#")), # mailto link, github issues, and/or "http://kathrynhurchla.com/", target="_blank"),
         dbc.NavItem(dbc.NavLink("Share", href="#"))
     ],
     brand='Sustain our Soil for our Food',
@@ -53,12 +53,14 @@ navbar = dbc.NavbarSimple(
     class_name="fixed-top",
 )
 
-appSubheading = html.Div([
-    html.H5("Organic carbon occurs naturally in soil, but whether it presents a threat or a service to humans depends on YOU.",
-    style={'text-align': 'left'})
-])
+appSubheading = dbc.Container(
+    html.Div([
+        html.H5("Organic carbon occurs naturally in soil, but whether it presents a threat or a service to humans depends on YOU."
+        )
+    ])
+)
 
-learnMore = dbc.Button("Learn more about soil health, and how you can help.", id="learn-more-button", color="link", size="md")
+learnMore = dbc.Button("Learn more about soil health, and how you can help.", id="learn-more-button", color="link", size="md", class_name="btn btn-link")
 
 whyCarbon = dbc.Card(
     html.Div(children=[
@@ -78,64 +80,64 @@ whyCarbon = dbc.Card(
         style={'text-align': 'left'}
         )
     ]),
-    body=True
+    body=True,
+    color="light",
+    class_name="card bg-light mb-3"
 )
 
-# introduce the controls section, used with map
-controlsIntro =  html.Div(children=[
-    # add a brief instructive subheading as a label introducing the map
-    html.H6('Explore how much of the soil where your food comes from is made up of organic carbon.'
-    ),
-    # # give more text tips on how to easily find countries
-    # html.P('Type in the boxes below to search choices in the drop down menus.'
-    # )
-])
+dropdownCountry = dbc.CardBody(
+    html.Div(children=[
+        # add an intructive label before dropdown
+        dbc.Label('Choose where you eat.'
+        ),
+        # add a dropdown for audience member using app to select country where they generally eat
+        dcc.Dropdown(id='trade_partner_country_dropdown', 
+                    options=[{'label': country, 'value': country}
+                            # series values needed to be sorted first before taking unique to prevent errors
+                            for country in dffood['Partner Countries'].sort_values().unique()
+                    ],
+                    # value='United States', # None so no selection is defaulted upon each load of the app page
+                    placeholder='Country',
+                    multi=False, # True to allow multiple Country selections
+                    searchable=True, # allows type in search to filter dropdown options that show
+                    clearable=True, # shows an 'X' option to clear selection once selection is made
+                    persistence=True, # True is required to use a persistence_type
+                    persistence_type='session', # remembers dropdown value selection until browser tab is closed (saves after refresh) 
+                    style={"width": "auto%"}
+        )
+    ])
+)
 
-dropdownCountry = html.Div(children=[
-    # add an intructive label before dropdown
-    dbc.Label('To begin, choose where you eat.'
-    ),
-    # add a dropdown for audience member using app to select country where they generally eat
-    dcc.Dropdown(id='trade_partner_country_dropdown', 
-                 options=[{'label': country, 'value': country}
-                          # series values needed to be sorted first before taking unique to prevent errors
-                          for country in dffood['Partner Countries'].sort_values().unique()
-                 ],
-                 # value='United States', # None so no selection is defaulted upon each load of the app page
-                 placeholder='Country',
-                 multi=False, # True to allow multiple Country selections
-                 searchable=True, # allows type in search to filter dropdown options that show
-                 clearable=True, # shows an 'X' option to clear selection once selection is made
-                 persistence=True, # True is required to use a persistence_type
-                 persistence_type='session', # remembers dropdown value selection until browser tab is closed (saves after refresh) 
-                 style={"width": "65%"}
-    ),
-    html.Br()
-])
+dropdownFood = dbc.CardBody(
+    html.Div(children=[
+        # add a brief instructive subheading as a label
+        dbc.Label('Then, choose a food.', style={'text-align': 'left'}
+        ),
+        # add a dropdown for audience member using app to select a food they frequently eat
+        dcc.Dropdown(id='food_dropdown',
+                    options=[], # empty because callbacks are populating this below, based on country selection(s)
+                    #  options=[{'label': food, 'value': food}
+                    #           # series values needed to be sorted first before taking unique to prevent errors
+                    #           for food in dffood['Item'].sort_values().unique()
+                    #  ],
+                    placeholder='Food',
+                    searchable=True, 
+                    clearable=True, # shows an 'X' option to clear selection once selection is made
+                    persistence=True, # True is required to use a persistence_type
+                    persistence_type='session', # remembers dropdown value selection until browser tab is closed (saves after refresh) 
+                    style={"width": "auto%"}
+        )
+    ])
+)
 
-dropdownFood = html.Div(children=[
-    # add a brief instructive subheading as a label
-    html.Label('Then, choose a food you enjoy.', style={'text-align': 'left'}
-    ),
-    # add a dropdown for audience member using app to select a food they frequently eat
-    dcc.Dropdown(id='food_dropdown',
-                 options=[], # empty because callbacks are populating this below, based on country selection(s)
-                #  options=[{'label': food, 'value': food}
-                #           # series values needed to be sorted first before taking unique to prevent errors
-                #           for food in dffood['Item'].sort_values().unique()
-                #  ],
-                 placeholder='Food',
-                 searchable=True, 
-                 clearable=True, # shows an 'X' option to clear selection once selection is made
-                 persistence=True, # True is required to use a persistence_type
-                 persistence_type='session', # remembers dropdown value selection until browser tab is closed (saves after refresh) 
-                 style={"width": "65%"}
-    ),
-    html.Br()
-])
+controls = dbc.CardGroup([dropdownCountry, dropdownFood], class_name="card border-primary bg-light mb-2")
 
-mapExplorer = dbc.Container([
-    html.Div([
+mapExplorer = dbc.Card([
+    html.Div(children=[
+        html.P('Explore how much of the soil where your food comes from is made up of organic carbon.',
+        className="lead"
+        ),
+        html.Div(controls),
         dcc.Graph(
             id='map-socd',
             config={'displayModeBar': False, 'scrollZoom': True}
@@ -146,16 +148,18 @@ mapExplorer = dbc.Container([
     html.Div(children=[
         html.P("Dots on the map vary in size by the location's soil organic carbon density (SOCD), which can be understood as how much of the soil is made up of organic carbon, from the ground surface down to 4.5 centimeters deep. These density estimates are by global leading scientists from the available worldwide soil data––collected and mathematically modelled––and are expressed in metric tonnes (t ha-1), which are equal to about 1,000 kilograms or aproximately 2,205 pounds.", 
         style={'text-align': 'left'}),
-        html.P("Learn more about carbon and its importance in soil below.",
+        html.P("Read more about carbon's importance in soil below.",
         style={'text-align': 'left'}),
-        html.P("Data citation: Shangguan, W., Dai, Y., Duan, Q., Liu, B. and Yuan, H., 2014. A Global Soil Data Set for Earth System Modeling. Journal of Advances in Modeling Earth Systems, 6: 249-263.",
+        html.P("Data source: Shangguan, W., Dai, Y., Duan, Q., Liu, B. and Yuan, H., 2014. A Global Soil Data Set for Earth System Modeling. Journal of Advances in Modeling Earth Systems, 6: 249-263.",
         style={'text-align': 'left'}),
-    ]),
-    html.Br()
-])
+    ])
+    # html.Br()
+], body=True)
 
-densityRanges = dbc.Container([
-    html.Div([
+densityRanges = dbc.Card([
+    html.Div(children=[
+        html.H5("Range of Soil Organic Carbon Density by Countries"
+        ),
         dcc.Graph(
             id="SOCD-bar-chart",
             config={'displayModeBar': False, 'scrollZoom': True}
@@ -166,14 +170,16 @@ densityRanges = dbc.Container([
     html.Div(children=[
         html.P("Bars show the global range of soil organic carbon density on land.",
         style={'text-align': 'left'}),
-        html.P("Data citation: Shangguan, W., Dai, Y., Duan, Q., Liu, B. and Yuan, H., 2014. A Global Soil Data Set for Earth System Modeling. Journal of Advances in Modeling Earth Systems, 6: 249-263.",
+        html.P("Data source: Shangguan, W., Dai, Y., Duan, Q., Liu, B. and Yuan, H., 2014. A Global Soil Data Set for Earth System Modeling. Journal of Advances in Modeling Earth Systems, 6: 249-263.",
         style={'text-align': 'left'}),
     ]),
     html.Br()
-])
+], body=True)
 
-riskFoods = dbc.Container([
-    html.Div([
+riskFoods = dbc.Card([
+    html.Div(children=[
+        html.H5("Foods At Risk from Lower Soil Organic Carbon"
+        ),
         dcc.Graph(
             id="food-bar-chart",
             config={'displayModeBar': False, 'scrollZoom': True}
@@ -182,20 +188,18 @@ riskFoods = dbc.Container([
     html.Br(),
 
     html.Div(children=[
-        html.P("Bars show the world's foods from countries with the lowest soil carbon densities on average.",
+        html.P("Bars show foods from countries with the lowest soil carbon densities on average globally. Foods traded between countries are included",
         style={'text-align': 'left'}),
-        html.P("Data citation: Shangguan, W., Dai, Y., Duan, Q., Liu, B. and Yuan, H., 2014. A Global Soil Data Set for Earth System Modeling. Journal of Advances in Modeling Earth Systems, 6: 249-263.",
+        html.P("Data source: Shangguan, W., Dai, Y., Duan, Q., Liu, B. and Yuan, H., 2014. A Global Soil Data Set for Earth System Modeling. Journal of Advances in Modeling Earth Systems, 6: 249-263.",
         style={'text-align': 'left'}),
     ]),
     html.Br()
-])
+], body=True)
 
-controls = dbc.CardBody([controlsIntro, dropdownCountry, dropdownFood])
-
-tab1 = dbc.Tab([densityRanges], label="Density Ranges")
-tab2 = dbc.Tab([riskFoods], label="At Risk Foods")
+tab1 = dbc.Tab([densityRanges], label="Density Ranges") # this was for when densityRanges was in a container instead of card: #, style={"padding-top": 20})
+tab2 = dbc.Tab([riskFoods], label="At Risk Foods") # this was for when riskFoods was in a container instead of card: #, style={"padding-top": 20})
 tab3 = dbc.Tab([whyCarbon], label="Why Carbon?")
-tabs = dbc.Tabs([tab1, tab2, tab3])
+tabs = dbc.Tabs(children=[tab1, tab2, tab3])
 
 # create the app's layout with the named variables
 app.layout = dbc.Container(
@@ -209,37 +213,49 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(appSubheading, 
-                width=12)
-            ]
+                width={"size": "auto", "offset": 0}, 
+                md={"size": "auto", "offset": 1}, 
+                xxl={"size": "auto", "offset": 2}
+                ),
+            ],
+            justify="left",
+            style={"padding-top": 95, "padding-bottom": 0}
         ),
         dbc.Row(
             [
-                dbc.Col(controls, width=12),
-            ]
-        ),
-        dbc.Row(
-            [
-                dbc.Col(mapExplorer, width=12),
-            ]
+                dbc.Col(mapExplorer, 
+                width={"size": 11, "offset": 0}
+                )
+            ],
+            justify="center",
+            style={"padding-top": 10, "padding-bottom": 25}
         ),
         dbc.Row(
             [
                 dbc.Col(learnMore,
                 width={'size': 9, 'offset': 2}, md={'size': 5, 'offset': 6}
-                ),
+                )
+            ],
+            style={"padding-top": 10, "padding-bottom": 10}
+        ),
+        dbc.Row(
+            [
+                dbc.Col(html.Br(), 
+                width=12
+                )
             ]
         ),
         dbc.Row(
             [
-                dbc.Col(html.Br(), width=12),
-            ]
+                dbc.Col(
+                    dbc.Container(
+                        tabs), 
+                width={"size": 11, "offset": 0}
+                )
+            ],
+            justify="center",
         ),
-        dbc.Row(
-            [
-                dbc.Col(tabs, width=12),
-            ]
-        ),
-    ], 
+    ],
     fluid=True,
     className="dbc"
 )
