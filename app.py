@@ -146,7 +146,7 @@ mapExplorer = dbc.Card([
     html.Br(),
 
     html.Div(children=[
-        html.P("Dots on the map vary in size by the location's soil organic carbon density (SOCD), which can be understood as how much of the soil is made up of organic carbon, from the ground surface down to 4.5 centimeters deep. These density estimates are by global leading scientists from the available worldwide soil data––collected and mathematically modelled––and are expressed in metric tonnes (t ha-1), which are equal to about 1,000 kilograms or aproximately 2,205 pounds.", 
+        html.P("Dots on the map vary in size by the location's soil organic carbon density (SOCD), which can be understood as how much of the soil is made up of organic carbon, from the ground surface down to 4.5 centimeters deep. These density estimates are by global leading scientists from the available worldwide soil data––collected and mathematically modelled––and are expressed in metric tonnes per hectare (t ha-1), which are equal to about 1,000 kilograms or aproximately 2,205 pounds.", 
         style={'text-align': 'left'}),
         html.P("Read more about carbon's importance in soil below.",
         style={'text-align': 'left'}),
@@ -156,11 +156,43 @@ mapExplorer = dbc.Card([
     # html.Br()
 ], body=True)
 
+# take the mean SOCD by grouping soil dataframe by Country and append the mean as a column
+dfsoil['SOCDcountryMean'] = dfsoil['SOCD'].groupby(dfsoil['country_name']).transform('mean')
+dfsoilMeans = dfsoil.drop_duplicates(subset=['country_name', 'continent', 'SOCDcountryMean', 'country_pop_est']).drop(['SOCD'], axis = 1).sort_values(by=['SOCDcountryMean', 'continent', 'country_name'])
+dfsoilMeansMaxOrder = ['Africa', 'Oceania', 'Asia', 'South America', 'North America', 'Europe']
+
+# make a bar chart showing range of mean by countries, overlay countries within continent group to retain mean y axis levels
+rangeSOCDfig = px.bar(dfsoilMeans, x='continent', y='SOCDcountryMean', color='SOCDcountryMean', barmode='overlay',
+                      # set bolded title in hover text, and make a list of columns to customize how they appear in hover text
+                      custom_data=['country_name', 'continent', 'SOCDcountryMean', 'country_pop_est'],
+                      color_continuous_scale=px.colors.sequential.speed, # alternately use turbid for more muted yellows to browns
+                      # a better label that will display over color legend
+                      labels={'SOCDcountryMean': 'Avg.<br>SOCD'},
+                      # lower opacity to help see variations of color between countries as means change
+                      opacity=0.20
+                      )
+# sort bars by mean SOCD, and suppress redundant axis titles, instead of xaxis={'categoryorder': 'mean ascending'} I pre-sorted the dataframe above, but still force sort here by explicit names
+rangeSOCDfig.update_layout(xaxis={'categoryorder': 'array', 'categoryarray': dfsoilMeansMaxOrder}, 
+                           xaxis_title=None, yaxis_title=None, # removed xaxis_tickangle=-45, # used to angle longer/more xaxis labels
+                           paper_bgcolor='#e8ece8', # next tint variation up from a low tint of #dadeda
+                           plot_bgcolor='#f7f5fc', # violet tone of medium purple to help greens pop forward
+                           yaxis={'gridcolor': '#e8ece8'}, # match grid lines shown to background to appear as showing through
+                           font={'color': '#483628'}) # a dark shade of orange that appears dark brown
+rangeSOCDfig.update_traces(
+    hovertemplate="<br>".join([
+        "<b>%{customdata[0]} </b><br>", # bolded hover title included, since the separate hover_name is superseced by hovertemplae
+        "%{customdata[1]}", # Continent value with no label
+        "Average SOCD: %{customdata[2]} t ha<sup>−1</sup>", # with html <sup> superscript tag in abbr. tonne per hectare
+        "Estimated Population (2019): %{customdata[3]:,} people"
+    ]) 
+)    
+
+
 densityRanges = dbc.Card([
     html.Div(children=[
-        html.H5("Range of Soil Organic Carbon Density by Countries"
+        html.H5("Range of Average Soil Organic Carbon Density (SOCD) Worldwide"
         ),
-        dcc.Graph(
+        dcc.Graph(figure=rangeSOCDfig,
             id="SOCD-bar-chart",
             config={'displayModeBar': False, 'scrollZoom': True}
         )
@@ -168,7 +200,7 @@ densityRanges = dbc.Card([
     html.Br(),
 
     html.Div(children=[
-        html.P("Bars show the global range of soil organic carbon density on land.",
+        html.P("Bars show the global range of soil organic carbon density on land. Hover over any bar to view details for specific countries.",
         style={'text-align': 'left'}),
         html.P("Data source: Shangguan, W., Dai, Y., Duan, Q., Liu, B. and Yuan, H., 2014. A Global Soil Data Set for Earth System Modeling. Journal of Advances in Modeling Earth Systems, 6: 249-263.",
         style={'text-align': 'left'}),
@@ -355,8 +387,6 @@ def update_selected_trade_partner(selected_partner_country, selected_food):
         'data': locations,
         'layout': layout
     }
-    
-    # fig = go.Figure(data=data, layout=layout) # or any Plotly Express function e.g. px.bar(...)
 
 # ----------------------------------------------------------------------------------------
 # run the app
