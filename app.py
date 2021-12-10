@@ -5,7 +5,7 @@
 import dash
 from dash import dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
-import plotly.graph_objects as go # or plotly.express as px
+import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 
@@ -33,7 +33,7 @@ dfsoil = pd.read_csv('/Users/kathrynhurchla/Documents/GitHub/sustain-our-soil-fo
 
 # ----------------------------------------------------------------------------------------
 # create (instantiate) the app,
-# using the Bootstrap MORPH theme, or Flatly (light) theme or Darkly (its dark counterpart) to align with my llc website in development with Flatly (dadeda.design)
+# using the Bootstrap MORPH theme, Slate (dark) or Flatly (light) theme or Darkly (its dark counterpart) to align with my llc website in development with Flatly (dadeda.design)
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH],
                 meta_tags=[{'name': 'viewport',
                             # initial-scale is the initial zoom on each device on load
@@ -158,14 +158,14 @@ mapExplorer = dbc.Card([
 
 # take the mean SOCD by grouping soil dataframe by Country and append the mean as a column
 dfsoil['SOCDcountryMean'] = dfsoil['SOCD'].groupby(dfsoil['country_name']).transform('mean')
-dfsoilMeans = dfsoil.drop_duplicates(subset=['country_name', 'continent', 'SOCDcountryMean', 'country_pop_est']).drop(['SOCD'], axis = 1).sort_values(by=['SOCDcountryMean', 'continent', 'country_name'])
+dfsoilMeans = dfsoil.drop_duplicates(subset=['country_name', 'continent', 'SOCDcountryMean', 'country_pop_est']).drop(['SOCD'], axis = 1).sort_values(by=['SOCDcountryMean', 'continent', 'country_name'], ascending= (False, True, True))
 dfsoilMeansMaxOrder = ['Africa', 'Oceania', 'Asia', 'South America', 'North America', 'Europe']
 
 # make a bar chart showing range of mean by countries, overlay countries within continent group to retain mean y axis levels
 rangeSOCDfig = px.bar(dfsoilMeans, x='continent', y='SOCDcountryMean', color='SOCDcountryMean', barmode='overlay',
                       # set bolded title in hover text, and make a list of columns to customize how they appear in hover text
                       custom_data=['country_name', 'continent', 'SOCDcountryMean', 'country_pop_est'],
-                      color_continuous_scale=px.colors.sequential.speed, # alternately use turbid for more muted yellows to browns
+                      color_continuous_scale=px.colors.sequential.speed, # alternately use turbid for more muted yellows to browns (speed for yellow to green to black scale)
                       # a better label that will display over color legend
                       labels={'SOCDcountryMean': 'Avg.<br>SOCD'},
                       # lower opacity to help see variations of color between countries as means change
@@ -296,7 +296,7 @@ app.layout = dbc.Container(
 # callback decorators and functions
 # connecting the Dropdown values to the graph
 
-# populate the options of food dropdown based on countries dropdown selection(s)
+# populate the options of food dropdown based on country dropdown selection(s)
 @app.callback(
     Output('food_dropdown', 'options'),
     Input('trade_partner_country_dropdown', 'value')
@@ -316,7 +316,8 @@ def set_food_options(selected_partner_country):
 def set_food_value(available_options):
     return [x['value'] for x in available_options]
 
-# Output of graph; return the selected options from the dropdown menus and input correlating trade Reporter Country(ies)'s location to the map
+# Output of graph; return the selected options from the dropdown menus, and
+# input for the correlating trade Reporter Country(ies)'s all its locations to the map
 @app.callback(
     Output('map-socd', 'figure'),
     [Input('trade_partner_country_dropdown', 'value'),
@@ -391,4 +392,4 @@ def update_selected_trade_partner(selected_partner_country, selected_food):
 # ----------------------------------------------------------------------------------------
 # run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)  # if inside Jupyter Notebook, add use_reloader=False inside parens to turn off reloader
+    app.run_server(debug=True, port=8050)  # if inside Jupyter Notebook, add use_reloader=False inside parens to turn off reloader
