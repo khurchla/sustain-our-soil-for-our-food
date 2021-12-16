@@ -514,4 +514,4 @@ def toggle_modal(n1, n2, is_open):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8050)  # if inside Jupyter Notebook, add use_reloader=False inside parens to turn off reloader
+    app.run_server(debug=True)  # if inside Jupyter Notebook, add use_reloader=False inside parens to turn off reloader
