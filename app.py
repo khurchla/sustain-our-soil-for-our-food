@@ -3,7 +3,7 @@
 
 # import the required packages using their usual aliases
 import dash
-from dash import dcc, html, Input, Output
+from dash import dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import plotly.express as px
@@ -42,8 +42,29 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH],
 # named variables for the app's layout
 navbar = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dbc.NavLink("Contact", href="#")),  # mailto link, github issues, and/or "http://kathrynhurchla.com/", target="_blank"),
-        dbc.NavItem(dbc.NavLink("Share", href="#"))
+        dbc.DropdownMenu(
+            children=[
+                dbc.DropdownMenuItem("Email", href="mailto:kathryn@dadeda.design?subject=Sustain our Soil for our Food", target='_blank'),  # mailto link, github issues, and/or "http://kathrynhurchla.com/", target="_blank"),
+                # submit a gitHub issue (with options of feature request or bug report active at time of prototype deployment)
+                dbc.DropdownMenuItem("Submit issues or Ideas", href="https://github.com/khurchla/sustain-our-soil-for-our-food/issues/new/choose", target='_blank'),
+                # link to gitHub repository for readme caveats, data preparation, or to recreate app/opensource code
+                dbc.DropdownMenuItem("View source code", href="https://github.com/khurchla/sustain-our-soil-for-our-food", target='_blank')
+            ],
+            nav=True,
+            in_navbar=True,
+            label="Contact",
+        ),
+        dbc.DropdownMenu(
+            children=[
+                # placeholder for Twitter button javascript embed # <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="Organic carbon occurs naturally in soil, but whether it presents a threat or a service to humans depends on YOU." data-via="khurchla" data-hashtags="dataviz" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                dbc.DropdownMenuItem("Tweet", href="#"),
+                # placeholder for popular Chinese social media Weibo share URL: http://service.weibo.com/share/share.php?url=http://example.com&appkey=&title=Organic carbon occurs naturally in soil, but whether it presents a threat or a service to humans depends on YOU.&pic=&ralateUid=&language=zh_cn
+                dbc.DropdownMenuItem("Weibo", href="#"),
+            ],
+            nav=True,
+            in_navbar=True,
+            label="Share",
+        ),
     ],
     brand='Sustain our Soil for our Food',
     color='#483628',  # "dark", #hex code color matching text in graphs, a dark orange brown; "dark" is MORPH theme option and a dark charcoal
@@ -57,7 +78,68 @@ appSubheading = dbc.Container(
         ])
 )
 
-learnMore = dbc.Button("Learn more about soil health, and how you can help.", id="learn-more-button", color="link", size="md", class_name="btn btn-link")
+# # empty card to push the info tooltip to the far right
+# controlsSpacer = dbc.CardBody(
+#     html.Div()
+# )
+
+tooltip = dbc.CardFooter(
+    html.Div(children=[
+        dbc.Button(
+            "info",
+            id="info-toolbar-tooltip",
+            # class_name="mx-2",
+            n_clicks=0,
+            size="sm"
+        ),
+        dbc.Tooltip(
+            "Use the in toolbar in the upper right corner of the map to zoom, move around, or reset your view.",
+            target="info-toolbar-tooltip",
+            placement="left"
+        ),
+    ],
+))
+
+learnMore = html.Div(children=[
+    dbc.Button("Learn more about soil health, and how you can help.", id="learn-more-button", n_clicks=0, color="link", size="md", class_name="btn btn-link"),
+    dbc.Modal(children=[
+        dbc.ModalHeader(dbc.ModalTitle("Take Your Curiosity a Step Further.")),
+        dbc.ModalBody(children=['Copy these suggested key terms by clicking the paper icon beside them or by selecting and copying them directly from within the text area below, and then paste them into your preferred search engine. There are many excellent resources to learn more on your journey as a soil stakeholder.',
+                                html.Br(),
+                                html.Br(),
+                                dcc.Textarea(
+                                    id="search_terms_textarea_id",
+                                    value='"soil health" OR "soil carbon" OR "soil organic carbon" OR "regenerative agriculture" OR "regenerative grazing"',
+                                    style={"heaight": '100%',
+                                           "width": 300,
+                                           "overflow": "auto"},
+                                ),
+                                dcc.Clipboard(
+                                    target_id="search_terms_textarea_id",
+                                    title="copy",
+                                    style={
+                                        "display": "inline-block",
+                                        "fontSize": 20,
+                                        "color": '#483628',
+                                        "verticalAlign": "top"
+                                    }
+                                )
+                                ]
+                      ),
+
+        dbc.ModalFooter(
+            dbc.Button(
+                "Close", id="learn-more-close", className="ms-auto", n_clicks=0
+            )
+        ),
+    ],
+        id="modal",
+        size="lg",
+        is_open=False,
+        centered=True,
+        style={"color": '#483628'}
+    )
+])
 
 whyCarbon = dbc.Card(
     html.Div(children=[
@@ -90,19 +172,23 @@ dropdownReporterCountry = dbc.CardBody(
         # add a dropdown for audience member using app to select a reporter country (their partner who exports the food they've chosen to their country)
         dcc.Dropdown(id='reporter_country_dropdown',
                      options=[{'label': country, 'value': country}
-                     # series values needed to be sorted first before taking unique to prevent errors
-                     for country in dfsoil['Reporter_Country_name'].sort_values().unique()],
+                              # series values needed to be sorted first before taking unique to prevent errors
+                              for country in dfsoil['Reporter_Country_name'].sort_values().unique()],
                      placeholder='Trade Partner',
                      searchable=True,
                      clearable=True,  # shows an 'X' option to clear selection once selection is made
                      persistence=True,  # True is required to use a persistence_type
                      persistence_type='session',  # remembers dropdown value selection until browser tab is closed (saves after refresh)
-                     style={"width": "50%"}
+                     multi=False,  # do not allow multiple country selections (default); doing so would require more code development in callback function
+                     style={"width": "75%"}
                      )
     ])
 )
 
-controls = dbc.CardGroup([dropdownReporterCountry], class_name="card border-primary bg-light mb-2")
+controls = html.Div(children=[
+    dbc.CardGroup([dropdownReporterCountry, tooltip], class_name="card border-primary bg-light mb-2")
+    ]
+)
 
 mapExplorer = dbc.Card([
     html.Div(children=[
@@ -110,8 +196,8 @@ mapExplorer = dbc.Card([
                className="lead"
                ),
         html.Div(controls),
-        html.Div(id='map-socd'
-                 )
+        html.Div(id='map-socd',
+                 ),
     ]),
     html.Br(),
 
@@ -219,7 +305,8 @@ RiskFoodsFig = px.scatter(dffood, x='Export_Items_Count', y='Export_Quantity_Sum
 # sort bars by mean SOCD, and suppress redundant axis titles, instead of xaxis={'categoryorder': 'mean ascending'} I pre-sorted the dataframe above, but still force sort here by explicit names
 RiskFoodsFig.update_layout(
                            xaxis_title='Diversity of Foods Imported (How many unique items?)',  # Exported (How many unique items?)',
-                           title='Volume as Total Quantity of Foods Imported (M represents Millions of tonnes)',
+                           # move yaxis text to title area for readability; add empty line above it so it appears below the plotly toolbar options
+                           title='<br>Volume as Total Quantity of Foods Imported (tonnes)',
                            yaxis_title='',  # moved to title attribute for readability
                            paper_bgcolor='#e8ece8',  # next tint variation up from a low tint of #dadeda
                            plot_bgcolor='#f7f5fc',  # violet tone of medium purple to help greens pop forward
@@ -251,9 +338,9 @@ riskFoods = dbc.Card([
     html.Br(),
 
     html.Div(children=[
-        html.P("Points show where each country falls in relations to these two major trade metrics as indicators of risk for a country's ability to feed its population. Countries in the upper right corner can generally be understood to be most at risk if food trade lines are affected by decreased production.",
+        html.P("Points show where each country falls in relation to these two major trade metrics as indicators of risk for a country's ability to feed its population. Countries in the upper right corner can generally be understood to be most at risk if food trade lines are affected by decreased production.",
                style={'text-align': 'left'}),
-        html.P("All food products traded between countries are included in the total summary of items imported, in 2019, as measured in metric tonnes. While soil organic carbon content is a major factor determining agricultural productivity, those levels are not directly shown in this graph and there are many factors that can lead to trade volatility",  # The major grid lines dividing the four sections are set at the median, in other words the middle, of that range of global values as a benchmark to divide high or low in population and trade dependency, in relation to other countries.",
+        html.P("All food products traded between countries are included in the total summary of items imported, in 2019, as measured in metric tonnes (vertical axis showing range with M representing millions of tonnes). While soil organic carbon content is a major factor determining agricultural productivity, those levels are not directly shown in this graph and there are many factors that can lead to trade volatility",  # The major grid lines dividing the four sections are set at the median, in other words the middle, of that range of global values as a benchmark to divide high or low in population and trade dependency, in relation to other countries.",
                style={'text-align': 'left'}),
         html.P(children=["Food and Agriculture Organization of the United Nations. (2020). FAOSTAT Detailed trade matrix: All Data Normalized. ",
                          html.A('https://www.fao.org/faostat/en/#data/TM',
@@ -271,6 +358,7 @@ tab1 = dbc.Tab([densityRanges], label="Density Ranges")
 tab2 = dbc.Tab([riskFoods], label="At Risk Foods")
 tab3 = dbc.Tab([whyCarbon], label="Why Carbon?")
 tabs = dbc.Tabs(children=[tab1, tab2, tab3])
+
 
 # create the app's layout with the named variables
 app.layout = dbc.Container(
@@ -326,6 +414,21 @@ app.layout = dbc.Container(
             ],
             justify="center",
         ),
+        dbc.Row(
+            html.Div(children=[
+                html.Br(),
+                html.Br(),
+                html.Footer(children=[
+                    html.A(u"\u00A9"+" Kathryn Hurchla 2021",
+                           href="http://kathrynhurchla.com",
+                           target="_blank",
+                           style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}
+                           ),
+                    ], className="text-muted",
+                ),
+            ],
+            ),
+        ),
     ],
     fluid=True,
     className="dbc"
@@ -345,7 +448,8 @@ def update_selected_reporter_country(selected_reporter_country):
     # always make a copy of any dataframe to use in the function
     # define the subset of data that matches the selected values from both dropdown(s)
     dfsoil_sub = dfsoil
-    dfsoil_sub1 = dfsoil_sub[(dfsoil_sub['Reporter_Country_name'] == selected_reporter_country)]  # filter dataframe with geo points
+    # filter dataframe with geo points for single selection multi=False (default)
+    dfsoil_sub1 = dfsoil_sub[(dfsoil_sub['Reporter_Country_name'] == selected_reporter_country)]
 
     # create figure variables for the graph object
     locations = [go.Scattermapbox(
@@ -358,9 +462,7 @@ def update_selected_reporter_country(selected_reporter_country):
                                        color='fuchsia',  # bright hue for contrast
                                        opacity=0.7
                                        ),
-        hovertemplate=
-        "Longitude: %{lon}<br>" +
-        "Latitude: %{lat}<br>"
+        hovertemplate="Longitude: %{lon}<br>" + "Latitude: %{lat}<br><extra></extra>"  # hide secondary tag with empty extra tag
         )
     ]
 
@@ -393,6 +495,19 @@ def update_selected_reporter_country(selected_reporter_country):
                          'data': locations,
                          'layout': layout
                      })
+
+# connect the Learn More button and modal with user interactions
+
+
+@app.callback(
+    Output("modal", "is_open"),
+    [Input("learn-more-button", "n_clicks"), Input("learn-more-close", "n_clicks")],
+    [State("modal", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 # ----------------------------------------------------------------------------------------
 # run the app
