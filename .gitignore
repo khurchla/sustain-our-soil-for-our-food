@@ -131,4 +131,22 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-data/keys.csv
+
+# PyCharm IntelliJ stuff
+.idea
+
+# unnecessary data files for production version
+dfsoil_subUS.csv
+dfsoil.csv
+keys.csv
+SOCD5min.nc
+
+# unnecessary analysis and data prep files for production version
+*.R
+*.Rmd
+
+# unnecessary design files for production version
+*.ai
+
+# unnecessary archived output files
+/output
