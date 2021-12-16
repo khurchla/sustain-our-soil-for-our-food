@@ -1,6 +1,7 @@
-# configuration file containing constants for environment
+# configuration file and files containing constants for environment
 .mapbox_token
 config.py
+patenvsoil*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
