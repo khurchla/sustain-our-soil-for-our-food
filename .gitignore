@@ -134,7 +134,9 @@ dmypy.json
 .pyre/
 
 # PyCharm IntelliJ stuff
-.idea
+# !**/.idea/**/*.xml !**/.idea/**/*.iml **/.idea/workspace.xml **/.idea/tasks.xml
+**/.idea/
+.idea/
 
 # unnecessary data files for production version
 dfsoil_subUS.csv
