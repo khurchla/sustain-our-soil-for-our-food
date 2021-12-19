@@ -1,6 +1,14 @@
 # Sustaining our Soil for our Food
 
-Capstone project for graduate MPS in Data Analytics &amp; Visualization degree, Maryland Institute College of Art.
+_How much of the soil where your food comes from is made up of organic carbon?_
+
+Explore the web app at http://sustain-our-soil.kathrynhurchla.com/
+
+The raw heroku domain for the app is https://sustain-our-soil-production.herokuapp.com/ where it can also be accessed.
+
+Have patience as I tune the app especially for memory leaks, and scale its deployment on Heroku–I'm on a budget for dynos! If you experience downtime or errors accessing the app, please let me know by opening an <a href="https://github.com/khurchla/sustain-our-soil-for-our-food/issues">issue on the project's GitHub repository</a> Cheers, Kathryn
+
+Capstone project web application prototype for graduate MPS in Data Analytics &amp; Visualization degree, Maryland Institute College of Art.
 December 2021
 
 ## Summary for Food Consumers
@@ -38,6 +46,9 @@ _TLDR, fair warning unless you're my mom this is were I ramble on and you might 
 - esteemed food producers and soil scientists doing the critical work and data collection for–and in–our soil–worldwide, and specifically Land-Atmosphere Interaction Research Group at Sun Yat-sen University for the thought, testing, and documentation you put into data harmonization across global datasets available to continue this work without delay at the speed of climate change. Soil and learning are resources we can never forget to nourish, and I hope this work honors and connects us all more with you and our land.
 - my family who is held up highest for your openminded and intentional, though occasionally faltering or reluctant, love and humor throughout my graduate degree program over a long 18 months. I experienced love when I needed it most, often in the form of meals and hugs and patience during stretches when I could not join all of our routines together. 
 - each of the instructors and guest professionals who shared honest feedback on my work throughout the MICA program. My instructors Amy Cesal and Zander Furnas brought more of this critical gift of feedback through their industry challenge course and a guest speaker series, during which I was delighted to hear I was the first person to ask a seasoned color professional in the data and design world about browns—that discussion directly informed my design choiced for this project.
+- Thomas Park for building the MORPH bootstrap style theme I customized for this app. Check out all Thomas's Bootswatch open source themes and other work at https://thomaspark.co/.
+- Plotly and Dash community and forum members, and literally almost everyone on StackOverflow. I spent hours and hours among your brilliance and willingness to share your own hard worn solutions in https://community.plotly.com/ and https://stackoverflow.com/.
+
 - and perhaps your name here to thank as this work progresses...
 
 <!-- my custom buy me and a mentee a tea button -->
