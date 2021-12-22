@@ -9,12 +9,13 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import humanize
+import os
 
 # read token string with your access mapbox token from a hidden file
 # saved in environment's root directory same as where this app.py file is
 # if you're using GitHub make sure to add '*.mapbox_token' to your .gitignore file
 # to prevent your private credentials from being publicly viewed or uploaded to GitHub
-mapbox_access_token = open(".mapbox_token").read()
+mapbox_access_token = os.environ.get('MAPBOX_ACCESS_TOKEN')
 
 # ----------------------------------------------------------------------------------------
 # -- call the data
@@ -27,7 +28,7 @@ dffood = pd.read_csv('./data/dffood.csv')
 # -- read the 4.5 depth soil organic carbon density (%) measurements pre-filtered for audience China's and U.S.'s food's trade export Reporter Countries (exported from analysis in Jupyter Notebook)
 # prepared using original dataset Soil organic carbon density: SOCD5min.zip from http://globalchange.bnu.edu.cn/research/soilw
 # with appended country name and ISO3 code from GeoPandas embedded World dataset
-dfsoil = pd.read_csv('./data/dfsoil_subUSCN.csv')
+dfsoil = pd.read_csv('./data/dfsoil_subUSCN_prod.csv')
 
 # ----------------------------------------------------------------------------------------
 # create (instantiate) the app,
@@ -69,7 +70,7 @@ navbar = dbc.NavbarSimple(
             label="Share",
         ),
     ],
-    brand='Sustain our Soil for our Food',
+    brand='Sustain Our Soil for Our Food',
     color='#483628',  # "dark", #hex code color matching text in graphs, a dark orange brown; "dark" is MORPH theme option and a dark charcoal
     dark=True,
     class_name="fixed-top",
