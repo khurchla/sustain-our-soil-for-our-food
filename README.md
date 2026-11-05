@@ -17,9 +17,20 @@ The appeal of the interactive visual web tool is to compel consumers to further 
 While debate and analysis continues worldwide about how effective soil carbon is in offsetting greenhouse gas emissions, likelihood grows that U.S. government certified voluntary environmental credit markets will be a reality with the progress of the Growing Climate Solutions Act of 2021. Meeting this bill’s directive will require the alignment of consumers at scale to reduce barriers to entry for food producers in adopting regenerative practices to earn monetary credits. By approaching soil carbon through food, this project adds a more everyday relatable human element in the increasing body of scientific material and visualization growing around soil health and its implications.
 
 ### Comments and Questions / General Disclaimer
-This research is completed academically by me, Kathryn Hurchla, and is not a reflection in any way of the data source references or their affiliates. I have made extensive efforts to assess and validate the data sources, and my own preparation of data for visualization in the web application, and I welcome your feedback. Please point out problems or discrepancies by opening an <a href="https://github.com/khurchla/sustain-our-soil-for-our-food/issues">issue on the project's GitHub repository</a>, or send questions or comments to me at <a href="mailto:khurchla@mica.edu?cc=kathryn@dadeda.design&subject=Sustain our Soil for our Food">khurchla@mica.edu or kathryn@dadeda.design</a>. 
+This research is completed academically by me, Kathryn Hurchla, and is not a reflection in any way of the data source references or their affiliates. I have made extensive efforts to assess and validate the data sources, and my own preparation of data for visualization in the web application, and I welcome your feedback. Please point out problems or discrepancies, or send questions or comments, to me at <a href="mailto:khurchla@mica.edu?cc=kathryn@dadeda.design&subject=Sustain our Soil for our Food">khurchla@mica.edu or kathryn@dadeda.design</a>. 
+
+### Repository Contents
+- `app.py`, `requirements.txt`, `Procfile`, `runtime.txt`: the Dash web app as deployed to Heroku
+- [`analysis/`](analysis/): Jupyter notebooks (Python) for exploring the soil and food trade data and preparing the app's data files; R scripts and notebooks exploring USDA soil survey data; `appGraphTests.py` for chart prototyping; `environment.yml`, the original conda environment
+- [`analysis/reports/`](analysis/reports/): rendered HTML output of the R soil survey analyses
+- [`design/`](design/): the style tile setting the app's visual direction (colors, type, UI elements)
+- [`docs/`](docs/): the project plan Gantt chart (November 2021)
+- [`DATA_SOURCES.md`](DATA_SOURCES.md): every dataset used, where to download it, and how the app's data files were produced. Data files aren't stored in this repo because of their size.
 
 ### Footnote: Source References
+See [DATA_SOURCES.md](DATA_SOURCES.md) for full details.
+
+
 FAO/IIASA/ISRIC/ISS-CAS/JRC, 2012. Harmonized World Soil Database
 (version1.2), FAO, Rome, Italy and IIASA, Laxenburg, Austria.
 The primary data source of this project is Soil organic carbon density: SOCD5min.zip 5 minutes spatial resolution, available at http://globalchange.bnu.edu.cn/research/soilw below the table of the 34 Soil Properties.
