@@ -1,13 +1,18 @@
 # Sustaining our Soil for our Food
+Sustain our Soil for our Food: A Visual Appeal to Food Consumers
+2021
 
 _How much of the soil where your food comes from is made up of organic carbon?_
 
-This web app has been retired for lack of funding. You can read more about this and other work featured at https://dadeda.design/work.
+This web app has been retired for lack of funding. You can read more about this project on my alumni capstone feature page at https://www.mica.edu/about-mica/offices-divisions/school-of-creative-professional-studies/mps-capstones/student/kathryn-hurchla/.
 
 Cheers, Kathryn
 
 Capstone project web application prototype for graduate MPS in Data Analytics &amp; Visualization degree, Maryland Institute College of Art.
 December 2021
+
+## Statement (abridged)
+With 7.9 Billion humans on Earth as of November 2021, and an expected 10 billion in the year 2057 (United Nations/Worldometer), we hold vast potential to sustain and restore the grand resource of our soil through the simple act of eating. We have the purchasing power to support food producers, and advocacy to reach policymakers. Around such a humble routine, low effort shifts in behavior determine and drive food industry change. This project investigates the intersection of organic carbon storage in soil with climate change and food production sustainability. The intent of the web-based interactive data visualization application prototype is to spark curiosity and compel consumers to engage in their food chain and ecosystem role, by exploring the countries some of their food comes from and the organic carbon content in soils as a metric of health that extends beyond soil to us and to the planet.
 
 ## Summary for Food Consumers
 **With 7.9 Billion humans on Earth as of November 2021, and an expected 10 Billion in the year 2057 (United Nations/Worldomter), as consumers we individually and collectively hold great potential to maintain and restore the grand resource of our soil,** through purchasing power to support food producers and advocacy to policy makers. This project investigates the intersection of organic carbon storage in soil with climate change and food production sustainability. Its success measure is introducing people who buy and eat food to an appreciation of the importance of soil organic carbon content where foods they eat are produced, even if that land is far away.
